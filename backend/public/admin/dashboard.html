@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - CCTV Solutions</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f4f7fb; color: #333; }
+  h1, h2 { color: #0d3b66; }
+  h2 { margin-top: 40px; }
+  input, textarea { width: 300px; padding: 8px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; }
+  button { padding: 7px 14px; margin-right: 5px; cursor: pointer; border-radius: 5px; border: none; background: #0077b6; color: white; transition: 0.3s; }
+  button:hover { background: #023e8a; }
+  .card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+  img { display: block; margin-top: 5px; max-width: 120px; border-radius: 5px; }
+  section { margin-bottom: 50px; }
+  label { font-weight: bold; display: block; margin-bottom: 5px; }
+  .btn-small { padding: 5px 10px; font-size: 14px; }
+
+
+.chatbot-admin { background:#f9f9f9; padding:15px; border-radius:8px; margin-top:20px; }
+#qaList .card { background:white; padding:10px; border-radius:5px; margin-bottom:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+#qaList button { margin-right:5px; padding:3px 8px; cursor:pointer; }
+
+</style>
+</head>
+<body>
+
+<h1>Admin Dashboard</h1>
+
+<!-- About / Mission / History Section -->
+<section class="edit-home-content">
+  <h2>Edit Home Content</h2>
+
+  <form id="homeContentForm">
+    <label for="about">About Our Company:</label>
+    <textarea id="about" name="about" rows="3"></textarea>
+
+    <label for="mission">Our Mission:</label>
+    <textarea id="mission" name="mission" rows="3"></textarea>
+
+    <label for="history">Our History:</label>
+    <textarea id="history" name="history" rows="3"></textarea>
+
+    <button type="submit">Update Home Content</button>
+  </form>
+</section>
+
+<!-- Certificates Edit Section -->
+<section class="edit-certificates">
+  <h2>Edit Certificates</h2>
+  
+  <form id="certificateForm">
+    <label for="certificationText">Certificate Text:</label>
+    <input type="text" id="certificationText" name="certificationText" required>
+
+    <label for="certificateImage">Upload Certificate Image:</label>
+    <input type="file" id="certificateImage" name="certificateImage" accept="image/*">
+
+    <button type="submit" class="btn">Update Certificate</button>
+  </form>
+
+  <div id="currentCertificate">
+    <h3>Current Certificate:</h3>
+    <p id="currentCertText">Loading...</p>
+    <img id="currentCertImage" src="" alt="Certificate Image" style="max-width:300px;">
+  </div>
+</section>
+
+<!-- Services Section -->
+<section>
+  <h2>Services Management</h2>
+  <input type="text" id="serviceTitle" placeholder="Service Title"><br>
+  <textarea id="serviceDesc" placeholder="Service Description"></textarea><br>
+  <button onclick="saveService()">Save Service</button>
+
+  <h3>All Services</h3>
+  <div id="servicesList"></div>
+</section>
+
+<hr>
+
+<!-- Products Section -->
+<section>
+  <h2>Products Management</h2>
+  <input type="text" id="productName" placeholder="Product Name"><br>
+  <input type="text" id="productCategory" placeholder="Category"><br>
+  <input type="text" id="productSpecs" placeholder="Specifications (comma separated)"><br>
+  <input type="number" id="productPrice" placeholder="Price"><br>
+  <input type="file" id="productImage"><br>
+  <button onclick="saveProduct()">Save Product</button>
+
+  <h3>All Products</h3>
+  <div id="productsList"></div>
+  
+
+<!-- YE NAYA SECTION ADD KARO -->
+<div id="productDetails" style="display:none; margin-top:20px; padding:15px; border:1px solid #ccc; border-radius:8px;">
+</div>
+</section>
+
+<hr>
+
+<!-- Contact Info Section -->
+<section>
+  <h2>Edit Contact Info</h2>
+  <form id="contact-form">
+    <label>Address:</label>
+    <input type="text" id="address" required>
+
+    <label>Phone:</label>
+    <input type="text" id="phone" required>
+
+    <label>Email:</label>
+    <input type="email" id="email" required>
+
+    <label>WhatsApp:</label>
+    <input type="text" id="whatsapp" placeholder="Only digits" required>
+
+    <button type="submit">Save</button>
+  </form>
+</section>
+
+<section class="chatbot-admin"></section>
+  <h2>Manage Chatbot Q&A</h2>
+
+  <!-- Add / Update Form -->
+  <form id="chatbotForm">
+    <input type="hidden" id="qaId">
+    <label>Question:</label>
+    <input type="text" id="qaQuestion" required placeholder="Enter question">
+
+    <label>Answer:</label>
+    <input type="text" id="qaAnswer" required placeholder="Enter answer">
+
+    <button type="submit" id="qaSaveBtn">Add Q&A</button>
+    <button type="button" id="qaCancelBtn" style="display:none;">Cancel Edit</button>
+  </form>
+
+  <!-- Existing Q&A list -->
+  <h3>All Questions</h3>
+  <div id="qaList"></div>
+</section>
+
+
+
+<script>
+  const token = localStorage.getItem('adminToken');
+  if(!token){
+    alert("Admin not logged in. Redirecting...");
+    window.location.href = "adminLogin.html";
+  }
+  
+  document.addEventListener("DOMContentLoaded", async () => {
+  
+    // ==================== Home Content Logic ====================
+    const homeForm = document.getElementById("homeContentForm");
+    const aboutInput = document.getElementById("about");
+    const missionInput = document.getElementById("mission");
+    const historyInput = document.getElementById("history");
+  
+    try {
+        const res = await fetch("/api/home");
+        const homeData = await res.json();
+        if(homeData) {
+            aboutInput.value = homeData.about || "";
+            missionInput.value = homeData.mission || "";
+            historyInput.value = homeData.history || "";
+        }
+    } catch(err) {
+        console.error("Failed to load home content", err);
+    }
+  
+    homeForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch("/api/home/update", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({
+                    about: aboutInput.value,
+                    mission: missionInput.value,
+                    history: historyInput.value
+                })
+            });
+            const result = await res.json();
+            alert(result.message || "Home content updated!");
+        } catch(err) {
+            console.error("Failed to update home content", err);
+            alert("Error updating home content");
+        }
+    });
+  
+    // ==================== Certificates Logic ====================
+    const certForm = document.getElementById("certificateForm");
+    const certText = document.getElementById("certificationText");
+    const certImage = document.getElementById("certificateImage");
+    const currentCertText = document.getElementById("currentCertText");
+    const currentCertImage = document.getElementById("currentCertImage");
+  
+    try {
+        const res = await fetch("/api/home");
+        const data = await res.json();
+  
+        if (data) {
+            certText.value = data.certificationText || "";
+            currentCertText.innerText = data.certificationText || "No certificate text available";
+            currentCertImage.src = data.certificationImage || "";
+        }
+    } catch(err) {
+        console.error("Failed to load certificate data", err);
+        certText.value = "";
+        currentCertText.innerText = "No certificate text available";
+        currentCertImage.src = "";
+    }
+  
+    certForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append("certificationText", certText.value);
+        if(certImage.files[0]) formData.append("certificateImage", certImage.files[0]);
+  
+        try {
+            const res = await fetch("/api/home/update-certificates", {
+                method: "POST",
+                body: formData
+            });
+            const result = await res.json();
+            alert(result.message || "Certificate updated!");
+            currentCertText.innerText = certText.value || "No certificate text available";
+            if(certImage.files[0]) currentCertImage.src = URL.createObjectURL(certImage.files[0]);
+        } catch(err) {
+            console.error("Failed to update certificate", err);
+            alert("Error updating certificate");
+        }
+    });
+  
+    // ==================== Services Logic ====================
+    let editServiceId = null;
+  
+    async function loadServices(){
+      try {
+        const res = await fetch("/api/services", { headers: { "Authorization": "Bearer "+token } });
+        const data = await res.json();
+        const list = document.getElementById("servicesList");
+        list.innerHTML = "";
+        data.forEach(s=>{
+          list.innerHTML += `
+            <div class="card">
+              <strong>${s.title}</strong>
+              <p>${s.description}</p>
+              <button class="btn-small" onclick="editService('${s._id}','${s.title}','${s.description}')">Edit</button>
+              <button class="btn-small" onclick="deleteService('${s._id}')">Delete</button>
+            </div>
+          `;
+        });
+      } catch(err){ console.error("Failed to load services", err); }
+    }
+  
+    window.editService = function(id,title,desc){
+      editServiceId = id;
+      document.getElementById("serviceTitle").value = title;
+      document.getElementById("serviceDesc").value = desc;
+    }
+  
+    window.saveService = async function(){
+      const title = document.getElementById("serviceTitle").value;
+      const desc = document.getElementById("serviceDesc").value;
+      if(!title || !desc){ alert("Fill all fields"); return; }
+  
+      const method = editServiceId ? "PUT" : "POST";
+      const url = editServiceId ? `/api/services/${editServiceId}` : "/api/services";
+  
+      await fetch(url,{
+        method,
+        headers: { "Content-Type":"application/json", "Authorization":"Bearer "+token },
+        body: JSON.stringify({ title, description: desc })
+      });
+  
+      editServiceId = null;
+      document.getElementById("serviceTitle").value = "";
+      document.getElementById("serviceDesc").value = "";
+      loadServices();
+    }
+  
+    window.deleteService = async function(id){
+      if(!confirm("Delete this service?")) return;
+      await fetch(`/api/services/${id}`, { method:"DELETE", headers:{"Authorization":"Bearer "+token} });
+      loadServices();
+    }
+  
+    // ==================== Products Logic ====================
+    let editProductId = null;
+  
+    async function loadProducts(){
+      try {
+        const res = await fetch("/api/products", { headers: { "Authorization": "Bearer "+token } });
+        const data = await res.json();
+        const list = document.getElementById("productsList");
+        list.innerHTML = "";
+        data.forEach(p=>{
+          list.innerHTML += `
+            <div class="card">
+              <strong>${p.name}</strong> | Category: ${p.category} | Price: ${p.price}
+              <p>Specs: ${p.specs.join(", ")}</p>
+              ${p.image ? `<img src="${p.image}">` : ""}
+              <button class="btn-small" onclick="editProduct('${p._id}','${p.name}','${p.category}','${p.specs.join(",")}','${p.price}')">Edit</button>
+              <button class="btn-small" onclick="deleteProduct('${p._id}')">Delete</button>
+            </div>
+          `;
+        });
+      } catch(err){ console.error("Failed to load products", err); }
+    }
+  
+    window.editProduct = function(id,name,category,specs,price){
+      editProductId = id;
+      document.getElementById("productName").value = name;
+      document.getElementById("productCategory").value = category;
+      document.getElementById("productSpecs").value = specs;
+      document.getElementById("productPrice").value = price;
+    }
+  
+    window.saveProduct = async function(){
+      const name = document.getElementById("productName").value;
+      const category = document.getElementById("productCategory").value;
+      const specs = document.getElementById("productSpecs").value.split(",");
+      const price = document.getElementById("productPrice").value;
+      const imageFile = document.getElementById("productImage").files[0];
+  
+      if(!name || !category || !specs || !price){ alert("Fill all fields"); return; }
+  
+      const formData = new FormData();
+      formData.append("name",name);
+      formData.append("category",category);
+      formData.append("specs",specs);
+      formData.append("price",price);
+      if(imageFile) formData.append("image",imageFile);
+  
+      const url = editProductId ? `/api/products/${editProductId}` : "/api/products";
+      const method = editProductId ? "PUT" : "POST";
+  
+      await fetch(url,{ method, headers: { "Authorization":"Bearer "+token }, body: formData });
+  
+      editProductId = null;
+      document.getElementById("productName").value="";
+      document.getElementById("productCategory").value="";
+      document.getElementById("productSpecs").value="";
+      document.getElementById("productPrice").value="";
+      document.getElementById("productImage").value="";
+      loadProducts();
+    }
+  
+    window.deleteProduct = async function(id){
+      if(!confirm("Delete this product?")) return;
+      await fetch(`/api/products/${id}`,{method:"DELETE", headers:{"Authorization":"Bearer "+token}});
+      loadProducts();
+    }
+  
+    // ==================== Contact Info Logic ====================
+    const contactForm = document.getElementById('contact-form');
+  
+    async function loadContact(){
+      try{
+        const res = await fetch('/api/contact', { headers: { 'Authorization': 'Bearer ' + token } });
+        const data = await res.json();
+        document.getElementById('address').value = data.address || '';
+        document.getElementById('phone').value = data.phone || '';
+        document.getElementById('email').value = data.email || '';
+        document.getElementById('whatsapp').value = data.whatsapp || '';
+      } catch(err){
+        console.error("Failed to load contact info", err);
+      }
+    }
+  
+    contactForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const data = {
+        address: document.getElementById('address').value,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+        whatsapp: document.getElementById('whatsapp').value
+      };
+  
+      try{
+        const res = await fetch('/api/contact', {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        alert(result.message);
+      }catch(err){
+        alert("Failed to update contact info");
+        console.error(err);
+      }
+    });
+
+    // ==================== CHATBOT MANAGEMENT ====================
+
+const qaForm = document.getElementById("chatbotForm");
+const qaQuestion = document.getElementById("qaQuestion");
+const qaAnswer = document.getElementById("qaAnswer");
+const qaSaveBtn = document.getElementById("qaSaveBtn");
+const qaCancelBtn = document.getElementById("qaCancelBtn");
+const qaList = document.getElementById("qaList");
+
+let editMode = false;
+
+// Load Q&A list
+async function loadQAList() {
+  try {
+    const res = await fetch("http://localhost:5000/api/chatbot");
+    const data = await res.json();
+
+    qaList.innerHTML = "";
+
+    Object.entries(data).forEach(([question, answer]) => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <strong>Q:</strong> ${question}<br>
+        <strong>A:</strong> ${answer}<br><br>
+        <button onclick="editQA('${question}','${answer}')">Edit</button>
+        <button onclick="deleteQA('${question}')">Delete</button>
+      `;
+
+      qaList.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error("Failed to load Q&A", err);
+  }
+}
+
+// Add / Update
+qaForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const question = qaQuestion.value.trim();
+  const answer = qaAnswer.value.trim();
+
+  if (!question || !answer) {
+    alert("Fill both fields");
+    return;
+  }
+
+  try {
+    // Backend already handles update if question exists
+    await fetch("http://localhost:5000/api/chatbot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, answer })
+    });
+
+    alert(editMode ? "Q&A Updated" : "Q&A Added");
+
+    qaQuestion.value = "";
+    qaAnswer.value = "";
+    qaSaveBtn.textContent = "Add Q&A";
+    qaCancelBtn.style.display = "none";
+    editMode = false;
+
+    loadQAList();
+
+  } catch (err) {
+    console.error(err);
+    alert("Error saving Q&A");
+  }
+});
+
+// Edit
+window.editQA = function(question, answer) {
+  qaQuestion.value = question;
+  qaAnswer.value = answer;
+  qaSaveBtn.textContent = "Update Q&A";
+  qaCancelBtn.style.display = "inline-block";
+  editMode = true;
+};
+
+// Cancel Edit
+qaCancelBtn.addEventListener("click", () => {
+  qaQuestion.value = "";
+  qaAnswer.value = "";
+  qaSaveBtn.textContent = "Add Q&A";
+  qaCancelBtn.style.display = "none";
+  editMode = false;
+});
+
+// Delete (we modify backend approach slightly)
+window.deleteQA = async function(question) {
+  if (!confirm("Delete this Q&A?")) return;
+
+  try {
+    // Since backend delete needs _id, but GET doesn't return id,
+    // We directly call POST with empty answer to remove
+    await fetch("http://localhost:5000/api/chatbot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, answer: "" })
+    });
+
+    alert("Q&A Deleted");
+    loadQAList();
+
+  } catch (err) {
+    console.error(err);
+    alert("Delete failed");
+  }
+};
+
+// Load on page start
+loadQAList();
+    
+  
+    // ==================== Load everything ====================
+    loadServices();
+    loadProducts();
+    loadContact();
+  
+  });
+  </script>
+
+<script src="/js/chatbot.js"></script>
+  
+</body>
+</html>

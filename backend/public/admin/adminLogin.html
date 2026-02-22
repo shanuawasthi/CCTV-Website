@@ -1,0 +1,77 @@
+<!-- public/admin/adminLogin.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+</head>
+<body>
+  <h2>Admin Login</h2>
+  <input type="text" id="username" placeholder="Username"><br>
+  <input type="password" id="password" placeholder="Password"><br>
+  <button onclick="login()">Login</button>
+
+  <script>
+    async function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+
+      if(data.token) {
+        localStorage.setItem("adminToken", data.token); // store token
+        window.location.href = "services.html"; // redirect
+      } else {
+        alert(data.message || "Login failed");
+      }
+    }
+  </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <style>
+    body { font-family: Arial; padding: 50px; background: #f4f4f4; }
+    input { width: 300px; padding: 8px; margin-bottom: 10px; display:block; }
+    button { padding: 6px 12px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h2>Admin Login</h2>
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+
+  <script>
+    async function login(){
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch("/api/admin/login", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({username,password})
+      });
+
+      const data = await res.json();
+
+      if(data.token){
+        localStorage.setItem("adminToken", data.token);
+        window.location.href = "dashboard.html"; // redirect to combined dashboard
+      } else {
+        alert(data.message || "Login failed");
+      }
+    }
+  </script>
+</body>
+</html>

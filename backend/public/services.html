@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Our Services - CCTV Solutions</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">CCTV Solutions</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Services Section -->
+    <section class="services">
+        <h1>Our Services</h1>
+        <div id="websiteServices"></div>
+    </section>
+
+    <!-- Include Chatbot -->
+<div id="chatbot-placeholder"></div>
+
+<a href="#" id="floating-whatsapp" target="_blank" class="whatsapp-float"></a>
+  <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="55">
+</a>
+
+    <script>
+    async function loadWebsiteServices() {
+      try {
+        // Replace current fetch with public endpoint
+        const res = await fetch("/api/public/services");
+        const data = await res.json();
+
+        const container = document.getElementById("websiteServices");
+        container.innerHTML = "";
+
+        if (data.length === 0) {
+          container.innerHTML = "<p>No services available.</p>";
+          return;
+        }
+
+        data.forEach(service => {
+          container.innerHTML += `
+            <div class="service-box">
+                <h2>${service.title}</h2>
+                <p>${service.description}</p>
+            </div>
+          `;
+        });
+
+      } catch (error) {
+        console.error("Error loading services:", error);
+      }
+    }
+    
+
+    loadWebsiteServices();
+
+    fetch("/chatbot.html")
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById("chatbot-placeholder").innerHTML = html;
+    const script = document.createElement("script");
+    script.src = "/js/chatbot.js";
+    document.body.appendChild(script);
+  });
+
+  // Floating WhatsApp icon update
+if (data.whatsapp) {
+  const floatingBtn = document.getElementById("floating-whatsapp");
+  const whatsappNumber = data.whatsapp.replace(/\D/g, '');
+  floatingBtn.href = `https://wa.me/${whatsappNumber}`;
+}
+
+    
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chatbot</title>
+<style>
+/* ---------- Floating Chatbot Icon ---------- */
+#chatbot {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  font-family: Arial, sans-serif;
+}
+
+#chatbot-icon {
+  background: #0077b6;
+  color: white;
+  padding: 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  font-size: 28px;
+  text-align: center;
+}
+
+/* ---------- Chat Window ---------- */
+#chat-window {
+  display: none;
+  width: 300px;
+  height: 400px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  z-index: 9999;
+}
+
+/* Messages Area */
+#chat-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+/* Input Area */
+#chat-input-area {
+  display: flex;
+  padding: 5px;
+  border-top: 1px solid #ccc;
+}
+
+#chat-input {
+  flex: 1;
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+#chat-send {
+  background: #0077b6;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-left: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Message Styles */
+.message { margin-bottom: 8px; }
+.user { text-align: right; color: #0077b6; font-weight: bold; }
+.bot { text-align: left; color: #333; }
+
+b { color: #0077b6; }
+a { color: #0077b6; text-decoration: underline; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- ---------- Chatbot Floating Icon ---------- -->
+<div id="chatbot">
+  <div id="chatbot-icon" onclick="toggleChat()">💬</div>
+
+  <!-- ---------- Chat Window ---------- -->
+  <div id="chat-window">
+    <div id="chat-messages"></div>
+    <div id="chat-input-area">
+      <input type="text" id="chat-input" placeholder="Ask a question...">
+      <button id="chat-send" type="button">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- Chatbot Logic ---------- -->
+<script src="/js/chatbot.js"></script>
+</body>
+</html>

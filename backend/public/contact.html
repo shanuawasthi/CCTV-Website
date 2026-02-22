@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - CCTV Solutions</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">CCTV Solutions</div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Contact Section -->
+  <section class="contact">
+    <h1>Contact Us</h1>
+
+    <div class="contact-container">
+
+      <!-- Contact Info Only -->
+      <div class="contact-info" style="margin:auto; text-align:center;">
+        <h2>Our Info</h2>
+        <p id="contact-address">Address: Loading...</p>
+        <p id="contact-phone">Phone: Loading...</p>
+        <p id="contact-email">Email: Loading...</p>
+        <a href="#" id="whatsapp-btn" class="btn whatsapp-btn" target="_blank">
+          Chat on WhatsApp
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Include Chatbot -->
+<div id="chatbot-placeholder"></div>
+
+<a href="#" id="floating-whatsapp" target="_blank" class="whatsapp-float"></a>
+  <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="55">
+</a>
+
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2026 CCTV Solutions</p>
+  </footer>
+
+  <script>
+    // ===================== Load Contact Info =====================
+    async function loadContactInfo() {
+      try {
+        const res = await fetch('/api/contact');
+        const data = await res.json();
+
+        document.getElementById('contact-address').innerText =
+          `Address: ${data.address || 'N/A'}`;
+
+        document.getElementById('contact-phone').innerText =
+          `Phone: ${data.phone || 'N/A'}`;
+
+        document.getElementById('contact-email').innerText =
+          `Email: ${data.email || 'N/A'}`;
+
+        // WhatsApp direct chat
+        if (data.whatsapp) {
+          const whatsappBtn = document.getElementById('whatsapp-btn');
+          const whatsappNumber = data.whatsapp.replace(/\D/g, '');
+          whatsappBtn.href = `https://wa.me/${whatsappNumber}`;
+        }
+
+      } catch (err) {
+        console.error("Failed to load contact info", err);
+        document.getElementById('contact-address').innerText = "Address: N/A";
+        document.getElementById('contact-phone').innerText = "Phone: N/A";
+        document.getElementById('contact-email').innerText = "Email: N/A";
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadContactInfo);
+
+  
+    fetch("/chatbot.html")
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById("chatbot-placeholder").innerHTML = html;
+    const script = document.createElement("script");
+    script.src = "/js/chatbot.js";
+    document.body.appendChild(script);
+  });
+
+
+  // Floating WhatsApp icon update
+if (data.whatsapp) {
+  const floatingBtn = document.getElementById("floating-whatsapp");
+  const whatsappNumber = data.whatsapp.replace(/\D/g, '');
+  floatingBtn.href = `https://wa.me/${whatsappNumber}`;
+}
+  
+  </script>
+
+</body>
+</html>
