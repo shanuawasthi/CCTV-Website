@@ -78,13 +78,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     const productsContainer = document.querySelector(".products");
 
     try {
-        const token = localStorage.getItem('adminToken'); // agar admin logged in hai
+        const token = localStorage.getItem('adminToken'); 
         const res = await fetch("/api/products", {
             headers: token ? { "Authorization": "Bearer " + token } : {}
         });
         const data = await res.json();
 
-        // Loop through DB products and append without removing existing cards
+      
         data.forEach(product => {
             const card = document.createElement("div");
             card.classList.add("product-card");
