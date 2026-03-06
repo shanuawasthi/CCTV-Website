@@ -1,0 +1,82 @@
+<!-- public/admin/services.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Service Management</title>
+</head>
+<body>
+  <h2>Add / Edit Service</h2>
+  <input type="text" id="title" placeholder="Service Title"><br>
+  <textarea id="description" placeholder="Service Description"></textarea><br>
+  <button onclick="addService()">Save Service</button>
+  <hr>
+  <h2>All Services</h2>
+  <div id="servicesList"></div>
+
+  <script>
+    let editId = null;
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+      alert("Admin not logged in. Redirecting to login page.");
+      window.location.href = "adminLogin.html";
+    }
+
+    async function loadServices() {
+      const res = await fetch("/api/services");
+      const data = await res.json();
+      const list = document.getElementById("servicesList");
+      list.innerHTML = "";
+      data.forEach(service => {
+        list.innerHTML += `
+          <div>
+            <h3>${service.title}</h3>
+            <p>${service.description}</p>
+            <button onclick="editService('${service._id}', '${service.title}', '${service.description}')">Edit</button>
+            <button onclick="deleteService('${service._id}')">Delete</button>
+          </div>
+        `;
+      });
+    }
+
+    async function addService() {
+      const title = document.getElementById("title").value;
+      const description = document.getElementById("description").value;
+      if (!title || !description) { alert("Fill all fields"); return; }
+
+      const method = editId ? "PUT" : "POST";
+      const url = editId ? `/api/services/${editId}` : "/api/services";
+
+      await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ title, description })
+      });
+
+      editId = null;
+      document.getElementById("title").value = "";
+      document.getElementById("description").value = "";
+      loadServices();
+    }
+
+    function editService(id, title, description) {
+      editId = id;
+      document.getElementById("title").value = title;
+      document.getElementById("description").value = description;
+    }
+
+    async function deleteService(id) {
+      await fetch(`/api/services/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": "Bearer " + token }
+      });
+      loadServices();
+    }
+
+    window.onload = loadServices;
+  </script>
+</body>
+</html>

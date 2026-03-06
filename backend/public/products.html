@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCTV Solutions - Products</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header>
+    <div class="logo">CCTV Solutions</div>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="admin/adminLogin.html">Admin</a></li>
+        </ul>
+    </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-text">
+        <h1>Our Products</h1>
+        <p>High-quality CCTV cameras and accessories for your home & business</p>
+    </div>
+    <img src="https://th.bing.com/th/id/OIP.aUn2aRUqVrFa5ULwAMZSZQHaCv?w=332&h=129&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3" alt="CCTV Banner" class="hero-img">
+</section>
+
+<!-- Products Section -->
+<section class="products">
+    <!-- Existing Static Cards -->
+    <div class="product-card">
+        <img src="https://th.bing.com/th/id/OIP.tZvirBY2j9rx--bOj2ND3AHaHa?w=199&h=199&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3" alt="Dome Camera">
+        <h3>Dome Camera</h3>
+        <a href="product-details.html?id=1" class="btn">View Details</a>
+    </div>
+
+    <div class="product-card">
+        <img src="https://th.bing.com/th/id/OIP.RFTdNcQPpSwhDDDOVaaLUQHaIf?w=172&h=197&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3" alt="PTZ Camera">
+        <h3>PTZ Camera</h3>
+        <a href="product-details.html?id=2" class="btn">View Details</a>
+    </div>
+
+    <div class="product-card">
+        <img src="https://th.bing.com/th/id/OIP.acjT3f49mTmaIrI2c0tHdAHaHa?w=155&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3" alt="NVR System">
+        <h3>NVR System</h3>
+        <a href="product-details.html?id=3" class="btn">View Details</a>
+    </div>
+
+    <div class="product-card">
+        <img src="https://th.bing.com/th/id/OIP.clxDupHzlL95NQ_yR0o8pgHaE8?w=236&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3" alt="Accessories">
+        <h3>Accessories</h3>
+        <a href="product-details.html?id=4" class="btn">View Details</a>
+    </div>
+</section>
+
+<!-- Include Chatbot -->
+<div id="chatbot-placeholder"></div>
+
+<a href="#" id="floating-whatsapp" target="_blank" class="whatsapp-float">
+    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="55">
+  </a>
+
+
+<!-- Footer -->
+<footer>
+    <p>© 2026 CCTV Solutions | Contact: +91-1234567890 | Email: info@cctvsolutions.com</p>
+</footer>
+
+<!-- JS: Fetch dynamic products -->
+<script>
+window.addEventListener("DOMContentLoaded", async () => {
+    const productsContainer = document.querySelector(".products");
+
+    try {
+        const token = localStorage.getItem('adminToken'); 
+        const res = await fetch("/api/products", {
+            headers: token ? { "Authorization": "Bearer " + token } : {}
+        });
+        const data = await res.json();
+
+      
+        data.forEach(product => {
+            const card = document.createElement("div");
+            card.classList.add("product-card");
+            card.innerHTML = `
+                <img src="${product.image || 'https://via.placeholder.com/220'}" alt="${product.name}">
+                <h3>${product.name}</h3>
+                <p>Category: ${product.category}</p>
+                <p>Price: ₹${product.price}</p>
+                <a href="product-details.html?id=${product._id}" class="btn">View Details</a>
+            `;
+            productsContainer.appendChild(card);
+        });
+    } catch(err) {
+        console.error("Failed to fetch products:", err);
+    }
+});
+
+fetch("/chatbot.html")
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById("chatbot-placeholder").innerHTML = html;
+    const script = document.createElement("script");
+    script.src = "/js/chatbot.js";
+    document.body.appendChild(script);
+  });
+
+  // Floating WhatsApp icon update
+if (data.whatsapp) {
+  const floatingBtn = document.getElementById("floating-whatsapp");
+  const whatsappNumber = data.whatsapp.replace(/\D/g, '');
+  floatingBtn.href = `https://wa.me/${whatsappNumber}`;
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+<h2>Edit Home Page</h2>
+
+<textarea id="mission" placeholder="Mission"></textarea>
+<textarea id="history" placeholder="History"></textarea>
+<textarea id="about" placeholder="About"></textarea>
+<textarea id="certification" placeholder="Certification"></textarea>
+
+<button onclick="saveHome()">Save</button>
+
+<script>
+function saveHome() {
+    fetch("http://localhost:5000/api/home/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            mission: mission.value,
+            history: history.value,
+            about: about.value,
+            certification: certification.value
+        })
+    })
+    .then(res => res.json())
+    .then(data => alert(data.message));
+}
+</script>

@@ -1,0 +1,127 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <div class="logo">CCTV Solutions</div>
+</header>
+
+<section class="products" style="justify-content:center;">
+    <div class="product-card" id="productDetail">
+        <img id="productImage" src="" alt="">
+        <h3 id="productName"></h3>
+        <p id="productCategory"></p>
+        <p id="productPrice"></p>
+        <ul id="productSpecs"></ul>
+    </div>
+</section>
+
+<!-- Include Chatbot -->
+<div id="chatbot-placeholder"></div>
+
+<a href="#" id="floating-whatsapp" target="_blank" class="whatsapp-float"></a>
+  <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" width="55">
+</a>
+
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+// ===== STATIC PRODUCTS (1–4) =====
+const staticProducts = {
+    1: {
+        name: "Dome Camera",
+        category: "Security Camera",
+        price: "1500",
+        image: "https://th.bing.com/th/id/OIP.tZvirBY2j9rx--bOj2ND3AHaHa",
+        specs: ["HD Quality", "Night Vision", "Indoor Use"]
+    },
+    2: {
+        name: "PTZ Camera",
+        category: "Security Camera",
+        price: "4500",
+        image: "https://th.bing.com/th/id/OIP.RFTdNcQPpSwhDDDOVaaLUQHaIf",
+        specs: ["360° Rotation", "Zoom Feature", "Outdoor Use"]
+    },
+    3: {
+        name: "NVR System",
+        category: "Recording System",
+        price: "6000",
+        image: "https://th.bing.com/th/id/OIP.acjT3f49mTmaIrI2c0tHdAHaHa",
+        specs: ["4 Channel", "Remote Access", "HD Recording"]
+    },
+    4: {
+        name: "Accessories",
+        category: "CCTV Accessories",
+        price: "800",
+        image: "https://th.bing.com/th/id/OIP.clxDupHzlL95NQ_yR0o8pgHaE8",
+        specs: ["Cables", "Adapters", "Mount Kits"]
+    }
+};
+
+// ===== FUNCTION TO DISPLAY PRODUCT =====
+function displayProduct(product) {
+    document.getElementById("productImage").src = product.image;
+    document.getElementById("productName").innerText = product.name;
+    document.getElementById("productCategory").innerText = "Category: " + product.category;
+    document.getElementById("productPrice").innerText = "Price: ₹" + product.price;
+
+    const specsList = document.getElementById("productSpecs");
+    specsList.innerHTML = "";
+    if (product.specs && product.specs.length > 0) {
+        product.specs.forEach(spec => {
+            const li = document.createElement("li");
+            li.innerText = spec;
+            specsList.appendChild(li);
+        });
+    }
+}
+
+// ===== CHECK STATIC OR DB =====
+if (staticProducts[id]) {
+    displayProduct(staticProducts[id]);
+} else {
+    fetch(`/api/products/${id}`)
+        .then(res => res.json())
+        .then(product => {
+            if (!product) {
+                document.getElementById("productDetail").innerHTML = "<h2>Product Not Found</h2>";
+                return;
+            }
+            displayProduct(product);
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById("productDetail").innerHTML = "<h2>Error Loading Product</h2>";
+        });
+}
+
+fetch("/chatbot.html")
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById("chatbot-placeholder").innerHTML = html;
+    const script = document.createElement("script");
+    script.src = "/js/chatbot.js";
+    document.body.appendChild(script);
+  });
+
+  // Floating WhatsApp icon update
+if (data.whatsapp) {
+  const floatingBtn = document.getElementById("floating-whatsapp");
+  const whatsappNumber = data.whatsapp.replace(/\D/g, '');
+  floatingBtn.href = `https://wa.me/${whatsappNumber}`;
+}
+
+</script>
+
+</body>
+</html>

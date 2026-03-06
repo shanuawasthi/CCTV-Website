@@ -1,0 +1,85 @@
+<!-- public/admin/products.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Management</title>
+</head>
+<body>
+  <h2>Add / Edit Product</h2>
+
+  <input type="text" id="name" placeholder="Product Name"><br>
+  <input type="text" id="category" placeholder="Category"><br>
+  <input type="text" id="specs" placeholder="Specifications (comma separated)"><br>
+  <input type="number" id="price" placeholder="Price"><br>
+  <input type="file" id="image"><br>
+  <button onclick="addProduct()">Save Product</button>
+  <hr>
+
+  <h2>All Products</h2>
+  <div id="productsList"></div>
+
+<script>
+let editId = null;
+const token = localStorage.getItem('adminToken');
+if (!token) {
+  alert("Admin not logged in. Redirecting to login page.");
+  window.location.href = "adminLogin.html";
+}
+
+// ================= Load Products =================
+async function loadProducts() {
+  const res = await fetch("/api/products");
+  const data = await res.json();
+
+  const list = document.getElementById("productsList");
+  list.innerHTML = "";
+  data.forEach(product => {
+    list.innerHTML += `
+      <div>
+        <h3>${product.name}</h3>
+        <p>Category: ${product.category}</p>
+        <p>Specs: ${product.specs.join(", ")}</p>
+        <p>Price: ${product.price}</p>
+        ${product.image ? `<img src="${product.image}" width="100">` : ""}
+      </div>
+    `;
+  });
+}
+
+// ================= Add Product =================
+async function addProduct() {
+  const name = document.getElementById("name").value;
+  const category = document.getElementById("category").value;
+  const specs = document.getElementById("specs").value;
+  const price = document.getElementById("price").value;
+  const imageFile = document.getElementById("image").files[0];
+
+  if (!name || !category || !specs || !price) { alert("Fill all fields"); return; }
+
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("category", category);
+  formData.append("specs", specs);
+  formData.append("price", price);
+  if (imageFile) formData.append("image", imageFile);
+
+  await fetch("/api/products", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + token },
+    body: formData
+  });
+
+  document.getElementById("name").value = "";
+  document.getElementById("category").value = "";
+  document.getElementById("specs").value = "";
+  document.getElementById("price").value = "";
+  document.getElementById("image").value = "";
+
+  loadProducts();
+}
+
+window.onload = loadProducts;
+</script>
+</body>
+</html>
